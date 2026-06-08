@@ -1,0 +1,13 @@
+venv/
+venv311/
+env/
+.venv/
+__pycache__/
+*.pyc
+logs/
+*.pcap
+*.pcapng
+.env
+.claude/
+.vscode/
+models/lstm_autoencoder.h5

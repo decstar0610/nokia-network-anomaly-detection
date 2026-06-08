@@ -2,7 +2,7 @@
   "model_type": "LSTMAutoencoder",
   "sequence_length": 20,
   "n_features": 17,
-  "threshold": 0.9677695035934448,
-  "epochs": 5,
+  "threshold": 0.614879846572876,
+  "epochs": 50,
   "model_file": "lstm_autoencoder.keras"
 }

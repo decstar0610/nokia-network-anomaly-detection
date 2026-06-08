@@ -41,14 +41,14 @@
     {
       "model": "LSTM Autoencoder",
       "precision": 0.0933,
-      "recall": 0.3305,
-      "f1": 0.1455,
-      "roc_auc": 0.7023,
-      "fpr": 0.1478,
-      "tp": 349,
-      "tn": 19552,
-      "fp": 3392,
-      "fn": 707,
+      "recall": 0.3352,
+      "f1": 0.146,
+      "roc_auc": 0.7152,
+      "fpr": 0.1499,
+      "tp": 354,
+      "tn": 19505,
+      "fp": 3439,
+      "fn": 702,
       "meets_precision": false,
       "meets_recall": false,
       "meets_auc": false,
@@ -105,19 +105,19 @@
     {
       "model": "LSTM Autoencoder",
       "false_positives": {
-        "count": 3392,
-        "avg_score": 0.0094
+        "count": 3439,
+        "avg_score": 0.0087
       },
       "false_negatives": {
-        "count": 707,
-        "avg_score": 0.0003
+        "count": 702,
+        "avg_score": 0.0002
       },
       "fp_vs_tp_mean_diff": {
-        "bytes_per_packet": -13.6434,
-        "packet_rate": -12.6121,
-        "duration": -10.1092,
-        "bytes_transferred": -8.9871,
-        "packets_count": -1.9906
+        "bytes_per_packet": -14.2067,
+        "packet_rate": -11.7915,
+        "duration": -10.5794,
+        "bytes_transferred": -9.2454,
+        "packets_count": -1.7178
       }
     }
   ],

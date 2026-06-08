@@ -1,0 +1,8 @@
+{
+  "model_type": "IsolationForest",
+  "n_estimators": 100,
+  "contamination": 0.1,
+  "threshold": 0.4805798649754756,
+  "score_min": 0.3211816216333203,
+  "score_max": 0.7167333398363521
+}
