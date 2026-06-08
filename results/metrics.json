@@ -9,14 +9,14 @@
     {
       "model": "Isolation Forest",
       "precision": 0.85,
-      "recall": 0.949,
-      "f1": 0.8968,
-      "roc_auc": 0.9774,
-      "fpr": 0.1457,
-      "tp": 11128,
-      "tn": 11506,
-      "fp": 1963,
-      "fn": 598,
+      "recall": 0.9475,
+      "f1": 0.8961,
+      "roc_auc": 0.977,
+      "fpr": 0.1455,
+      "tp": 11110,
+      "tn": 11509,
+      "fp": 1960,
+      "fn": 616,
       "meets_precision": true,
       "meets_recall": true,
       "meets_auc": true,
@@ -25,65 +25,99 @@
     {
       "model": "LOF",
       "precision": 0.85,
-      "recall": 0.9439,
-      "f1": 0.8945,
-      "roc_auc": 0.9165,
-      "fpr": 0.145,
-      "tp": 11068,
-      "tn": 11516,
-      "fp": 1953,
-      "fn": 658,
+      "recall": 0.9431,
+      "f1": 0.8942,
+      "roc_auc": 0.9161,
+      "fpr": 0.1449,
+      "tp": 11059,
+      "tn": 11518,
+      "fp": 1951,
+      "fn": 667,
       "meets_precision": true,
       "meets_recall": true,
       "meets_auc": true,
+      "meets_fpr": "True"
+    },
+    {
+      "model": "LSTM Autoencoder",
+      "precision": 0.0933,
+      "recall": 0.3305,
+      "f1": 0.1455,
+      "roc_auc": 0.7023,
+      "fpr": 0.1478,
+      "tp": 349,
+      "tn": 19552,
+      "fp": 3392,
+      "fn": 707,
+      "meets_precision": false,
+      "meets_recall": false,
+      "meets_auc": false,
       "meets_fpr": "True"
     }
   ],
   "cv_isolation_forest": {
     "precision_mean": 0.85,
     "precision_std": 0.0,
-    "recall_mean": 0.9544,
-    "recall_std": 0.0029,
-    "f1_mean": 0.8992,
+    "recall_mean": 0.9526,
+    "recall_std": 0.0031,
+    "f1_mean": 0.8984,
     "f1_std": 0.0013,
-    "roc_auc_mean": 0.9781,
-    "roc_auc_std": 0.0006
+    "roc_auc_mean": 0.9775,
+    "roc_auc_std": 0.0008
   },
   "error_analysis": [
     {
       "model": "Isolation Forest",
       "false_positives": {
-        "count": 1963,
-        "avg_score": 0.4684
+        "count": 1960,
+        "avg_score": 0.4591
       },
       "false_negatives": {
-        "count": 598,
-        "avg_score": 0.2554
+        "count": 616,
+        "avg_score": 0.2509
       },
       "fp_vs_tp_mean_diff": {
-        "flag": 0.8817,
-        "hot": 0.7634,
-        "protocol_type": 0.6325,
-        "duration": 0.4913,
-        "src_bytes": -0.4177
+        "flag": 0.887,
+        "hot": 0.7625,
+        "protocol_type": 0.6756,
+        "duration": 0.4951,
+        "src_bytes": -0.4184
       }
     },
     {
       "model": "LOF",
       "false_positives": {
-        "count": 1953,
+        "count": 1951,
         "avg_score": 0.0121
       },
       "false_negatives": {
-        "count": 658,
+        "count": 667,
         "avg_score": 0.0028
       },
       "fp_vs_tp_mean_diff": {
-        "flag": 2.1109,
-        "service": -0.5902,
-        "protocol_type": 0.585,
-        "src_bytes": -0.3994,
+        "flag": 2.1108,
+        "service": -0.583,
+        "protocol_type": 0.4501,
+        "src_bytes": -0.3997,
         "dst_bytes": 0.2922
+      }
+    },
+    {
+      "model": "LSTM Autoencoder",
+      "false_positives": {
+        "count": 3392,
+        "avg_score": 0.0094
+      },
+      "false_negatives": {
+        "count": 707,
+        "avg_score": 0.0003
+      },
+      "fp_vs_tp_mean_diff": {
+        "bytes_per_packet": -13.6434,
+        "packet_rate": -12.6121,
+        "duration": -10.1092,
+        "bytes_transferred": -8.9871,
+        "packets_count": -1.9906
       }
     }
   ],

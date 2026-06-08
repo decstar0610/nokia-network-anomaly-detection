@@ -109,7 +109,8 @@ class LSTMAutoencoderDetector:
         return np.concatenate([pad, flags])
 
     # -------------------------------------------------------------- persist
-    def save(self, name: str = "lstm_autoencoder.h5") -> str:
+    def save(self, name: str = "lstm_autoencoder.keras") -> str:
+        # Use native Keras format (.keras) -- .h5 is legacy in Keras 3+
         path = os.path.join(MODELS_DIR, name)
         self.model.save(path)
         meta = {
@@ -118,13 +119,14 @@ class LSTMAutoencoderDetector:
             "n_features": self.n_features,
             "threshold": self.threshold_,
             "epochs": self.epochs,
+            "model_file": name,
         }
         with open(os.path.join(MODELS_DIR, "lstm_metadata.json"), "w") as f:
             json.dump(meta, f, indent=2)
         return path
 
     @staticmethod
-    def load(name: str = "lstm_autoencoder.h5") -> "LSTMAutoencoderDetector":
+    def load(name: str = "lstm_autoencoder.keras") -> "LSTMAutoencoderDetector":
         from tensorflow.keras import models
         meta_path = os.path.join(MODELS_DIR, "lstm_metadata.json")
         det = LSTMAutoencoderDetector()
@@ -134,6 +136,8 @@ class LSTMAutoencoderDetector:
             det.sequence_length = meta["sequence_length"]
             det.n_features = meta["n_features"]
             det.threshold_ = meta["threshold"]
+            # Use model_file from metadata if present
+            name = meta.get("model_file", name)
         det.model = models.load_model(os.path.join(MODELS_DIR, name))
         return det
 

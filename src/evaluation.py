@@ -351,7 +351,7 @@ def _evaluate_lstm(roc_curves: list, pr_curves: list, all_results: list,
     from feature_engineering import build_features, ENGINEERED_NUMERIC
     from sklearn.preprocessing import StandardScaler
 
-    lstm_model_path = os.path.join(MODELS_DIR, "lstm_autoencoder.h5")
+    lstm_model_path = os.path.join(MODELS_DIR, "lstm_autoencoder.keras")
     stream_scaler_path = os.path.join(MODELS_DIR, "stream_scaler.pkl")
     if not os.path.exists(lstm_model_path):
         print("   lstm_autoencoder.h5 not found -- run train.py first. Skipping.")
