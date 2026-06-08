@@ -93,19 +93,40 @@ def _compute_metrics(y_true, y_pred, y_score, name: str) -> dict:
 
 def _tune_threshold_for_fpr(y_true, y_score, max_fpr: float = PRD_FPR_TARGET):
     """
-    Walk the ROC curve and return the highest threshold that keeps FPR <= max_fpr.
-    Falls back to the lowest available threshold if none qualifies.
+    Find the threshold that satisfies ALL PRD targets simultaneously:
+      - Precision >= PRD_PRECISION_MIN (0.85)
+      - Recall    >= PRD_RECALL_MIN    (0.80)
+      - FPR       <= PRD_FPR_TARGET    (0.15)
+
+    Among qualifying thresholds, picks the one with highest recall (most detections).
+    Falls back to highest-TPR point under max_fpr if no threshold meets all three.
     """
-    fpr_arr, tpr_arr, thr_arr = roc_curve(y_true, y_score)
+    from sklearn.metrics import precision_recall_curve
+    prec_arr, rec_arr, thr_pr = precision_recall_curve(y_true, y_score)
+    fpr_arr, tpr_arr, thr_roc = roc_curve(y_true, y_score)
+
+    best_thr, best_rec, best_prec, best_fpr = None, -1, 0, 1
+    for thr in thr_pr:
+        mask = (y_score >= thr).astype(int)
+        tp = int(((mask == 1) & (y_true == 1)).sum())
+        fp = int(((mask == 1) & (y_true == 0)).sum())
+        fn = int(((mask == 0) & (y_true == 1)).sum())
+        tn = int(((mask == 0) & (y_true == 0)).sum())
+        p   = tp / max(tp + fp, 1)
+        r   = tp / max(tp + fn, 1)
+        fpr = fp / max(fp + tn, 1)
+        if p >= PRD_PRECISION_MIN and r >= PRD_RECALL_MIN and fpr <= max_fpr:
+            if r > best_rec:   # maximise recall among qualifying thresholds
+                best_thr, best_rec, best_prec, best_fpr = thr, r, p, fpr
+
+    if best_thr is not None:
+        return float(best_thr), float(best_fpr), float(best_rec)
+
+    # Fallback: highest TPR while FPR <= max_fpr (original behaviour)
     valid = np.where(fpr_arr <= max_fpr)[0]
-    if len(valid) == 0:
-        idx = 0
-    else:
-        idx = valid[-1]   # highest TPR while FPR <= target
-    # roc_curve appends a sentinel at position 0 with threshold > 1 --
-    # clamp to the actual threshold array length
-    idx = min(idx, len(thr_arr) - 1)
-    return float(thr_arr[idx]), float(fpr_arr[idx]), float(tpr_arr[idx])
+    idx = valid[-1] if len(valid) else 0
+    idx = min(idx, len(thr_roc) - 1)
+    return float(thr_roc[idx]), float(fpr_arr[idx]), float(tpr_arr[idx])
 
 
 # -----------------------------------------------------------------------------

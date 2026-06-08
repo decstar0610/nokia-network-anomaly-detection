@@ -1,0 +1,91 @@
+{
+  "prd_targets": {
+    "precision_min": 0.85,
+    "recall_min": 0.8,
+    "auc_min": 0.9,
+    "fpr_max": 0.15
+  },
+  "model_results": [
+    {
+      "model": "Isolation Forest",
+      "precision": 0.85,
+      "recall": 0.949,
+      "f1": 0.8968,
+      "roc_auc": 0.9774,
+      "fpr": 0.1457,
+      "tp": 11128,
+      "tn": 11506,
+      "fp": 1963,
+      "fn": 598,
+      "meets_precision": true,
+      "meets_recall": true,
+      "meets_auc": true,
+      "meets_fpr": "True"
+    },
+    {
+      "model": "LOF",
+      "precision": 0.85,
+      "recall": 0.9439,
+      "f1": 0.8945,
+      "roc_auc": 0.9165,
+      "fpr": 0.145,
+      "tp": 11068,
+      "tn": 11516,
+      "fp": 1953,
+      "fn": 658,
+      "meets_precision": true,
+      "meets_recall": true,
+      "meets_auc": true,
+      "meets_fpr": "True"
+    }
+  ],
+  "cv_isolation_forest": {
+    "precision_mean": 0.85,
+    "precision_std": 0.0,
+    "recall_mean": 0.9544,
+    "recall_std": 0.0029,
+    "f1_mean": 0.8992,
+    "f1_std": 0.0013,
+    "roc_auc_mean": 0.9781,
+    "roc_auc_std": 0.0006
+  },
+  "error_analysis": [
+    {
+      "model": "Isolation Forest",
+      "false_positives": {
+        "count": 1963,
+        "avg_score": 0.4684
+      },
+      "false_negatives": {
+        "count": 598,
+        "avg_score": 0.2554
+      },
+      "fp_vs_tp_mean_diff": {
+        "flag": 0.8817,
+        "hot": 0.7634,
+        "protocol_type": 0.6325,
+        "duration": 0.4913,
+        "src_bytes": -0.4177
+      }
+    },
+    {
+      "model": "LOF",
+      "false_positives": {
+        "count": 1953,
+        "avg_score": 0.0121
+      },
+      "false_negatives": {
+        "count": 658,
+        "avg_score": 0.0028
+      },
+      "fp_vs_tp_mean_diff": {
+        "flag": 2.1109,
+        "service": -0.5902,
+        "protocol_type": 0.585,
+        "src_bytes": -0.3994,
+        "dst_bytes": 0.2922
+      }
+    }
+  ],
+  "shap_top_features": null
+}

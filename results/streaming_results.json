@@ -1,0 +1,151 @@
+{
+  "phase": "Phase 4 -- Real-Time Streaming Simulation",
+  "stream_summary": {
+    "total_records": 10000,
+    "known_anomalies": 511
+  },
+  "latency_benchmark": {
+    "samples_measured": 500,
+    "avg_ms": 3.7018,
+    "p50_ms": 3.5631,
+    "p95_ms": 4.68,
+    "p99_ms": 5.6406,
+    "max_ms": 6.1677,
+    "meets_100ms_target": true
+  },
+  "replay_latency": {
+    "avg_ms": 3.7772,
+    "p95_ms": 4.6622,
+    "p99_ms": 5.5793,
+    "meets_100ms_target": true
+  },
+  "throughput_stress": {
+    "duration_s": 5.0,
+    "total_records": 673000,
+    "records_per_second": 134483.0,
+    "meets_10k_target": true,
+    "prd_target_rec_per_s": 10000
+  },
+  "detection_summary": {
+    "alerts_fired": 905,
+    "true_positives": 339,
+    "false_positives": 566,
+    "precision": 0.3746,
+    "recall": 0.6634,
+    "false_positive_rate": 0.0596
+  },
+  "severity_breakdown": {
+    "LOW": 634,
+    "MEDIUM": 235,
+    "HIGH": 33,
+    "CRITICAL": 3
+  },
+  "anomaly_type_breakdown": {
+    "DDoS / Traffic Spike": 266,
+    "Data Exfiltration": 167,
+    "Unknown Anomaly": 416,
+    "Port Scan": 56
+  },
+  "sample_alerts": [
+    {
+      "timestamp": "2026-05-01 00:10:24.346750",
+      "src_ip": "172.16.189.215",
+      "dst_ip": "192.168.10.10",
+      "anomaly_type": "DDoS / Traffic Spike",
+      "severity": "LOW",
+      "confidence": 0.5909,
+      "recommendation": "Check for DDoS attacks; apply rate-limiting on affected interfaces.",
+      "record_index": 34
+    },
+    {
+      "timestamp": "2026-05-01 00:13:15.938487",
+      "src_ip": "10.0.18.165",
+      "dst_ip": "192.168.116.151",
+      "anomaly_type": "Data Exfiltration",
+      "severity": "LOW",
+      "confidence": 0.6127,
+      "recommendation": "Isolate host; capture traffic for forensic analysis.",
+      "record_index": 45
+    },
+    {
+      "timestamp": "2026-05-01 00:28:13.588853",
+      "src_ip": "172.16.6.104",
+      "dst_ip": "192.168.10.10",
+      "anomaly_type": "DDoS / Traffic Spike",
+      "severity": "MEDIUM",
+      "confidence": 0.7129,
+      "recommendation": "Check for DDoS attacks; apply rate-limiting on affected interfaces.",
+      "record_index": 86
+    },
+    {
+      "timestamp": "2026-05-01 00:30:58.097767",
+      "src_ip": "10.0.121.21",
+      "dst_ip": "192.168.180.138",
+      "anomaly_type": "Unknown Anomaly",
+      "severity": "LOW",
+      "confidence": 0.5665,
+      "recommendation": "Investigate traffic source; escalate to NOC.",
+      "record_index": 92
+    },
+    {
+      "timestamp": "2026-05-01 00:36:23.432195",
+      "src_ip": "10.0.205.76",
+      "dst_ip": "192.168.90.50",
+      "anomaly_type": "Unknown Anomaly",
+      "severity": "MEDIUM",
+      "confidence": 0.7159,
+      "recommendation": "Investigate traffic source; escalate to NOC.",
+      "record_index": 102
+    },
+    {
+      "timestamp": "2026-05-01 00:37:53.143000",
+      "src_ip": "10.0.193.17",
+      "dst_ip": "192.168.247.109",
+      "anomaly_type": "Unknown Anomaly",
+      "severity": "LOW",
+      "confidence": 0.5442,
+      "recommendation": "Investigate traffic source; escalate to NOC.",
+      "record_index": 106
+    },
+    {
+      "timestamp": "2026-05-01 00:40:44.366231",
+      "src_ip": "10.0.101.237",
+      "dst_ip": "192.168.70.161",
+      "anomaly_type": "Unknown Anomaly",
+      "severity": "LOW",
+      "confidence": 0.5879,
+      "recommendation": "Investigate traffic source; escalate to NOC.",
+      "record_index": 113
+    },
+    {
+      "timestamp": "2026-05-01 00:44:08.959681",
+      "src_ip": "10.0.84.100",
+      "dst_ip": "192.168.171.134",
+      "anomaly_type": "Data Exfiltration",
+      "severity": "LOW",
+      "confidence": 0.5577,
+      "recommendation": "Isolate host; capture traffic for forensic analysis.",
+      "record_index": 124
+    },
+    {
+      "timestamp": "2026-05-01 01:01:35.487721",
+      "src_ip": "10.0.205.21",
+      "dst_ip": "203.0.113.192",
+      "anomaly_type": "Unknown Anomaly",
+      "severity": "LOW",
+      "confidence": 0.555,
+      "recommendation": "Investigate traffic source; escalate to NOC.",
+      "record_index": 170
+    },
+    {
+      "timestamp": "2026-05-01 01:01:43.460401",
+      "src_ip": "172.16.35.185",
+      "dst_ip": "192.168.10.10",
+      "anomaly_type": "DDoS / Traffic Spike",
+      "severity": "MEDIUM",
+      "confidence": 0.7018,
+      "recommendation": "Check for DDoS attacks; apply rate-limiting on affected interfaces.",
+      "record_index": 172
+    }
+  ]
+}
