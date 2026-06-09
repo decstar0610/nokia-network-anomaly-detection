@@ -82,7 +82,7 @@ if __name__ == "__main__":
     from preprocessing import unsupervised_split
 
     df = load_dataset()
-    Xtr, Xte, yte, scaler, encoders = unsupervised_split(df)
+    Xtr, Xval, yval, Xte, yte, scaler, encoders = unsupervised_split(df)
     det = LOFDetector().fit(Xtr)
     det.save()
     print("LOF baseline trained on normal-only NSL-KDD.")

@@ -130,14 +130,15 @@ class TestUnsupervisedSplit:
     def test_test_set_contains_anomalies(self):
         from preprocessing import unsupervised_split
         df = _make_raw_df(n=400)
-        _, X_test, y_test, _, _ = unsupervised_split(df, test_size=0.2)
+        _, _, y_val, _, y_test, _, _ = unsupervised_split(df, test_size=0.2)
         assert int(y_test.sum()) > 0, "Test set must contain some anomalies"
+        assert int(y_val.sum()) > 0, "Validation set must contain some anomalies"
 
     def test_no_label_leakage_in_train(self):
         """Scaler must be fit on normal-only data — no anomaly labels during fit."""
         from preprocessing import unsupervised_split
         df = _make_raw_df(n=400)
-        X_train, _, _, scaler, _ = unsupervised_split(df, test_size=0.2)
+        X_train, _, _, _, _, scaler, _ = unsupervised_split(df, test_size=0.2)
         # The scaler should have mean/var derived from normal-only rows
         assert scaler.mean_ is not None
         assert len(scaler.mean_) == X_train.shape[1]

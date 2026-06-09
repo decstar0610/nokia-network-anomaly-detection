@@ -115,8 +115,8 @@ if __name__ == "__main__":
     from preprocessing import unsupervised_split, save_artifacts
 
     df = load_dataset()
-    Xtr, Xte, yte, scaler, encoders = unsupervised_split(df)
-    save_artifacts(scaler, encoders, Xtr, Xte, yte)
+    Xtr, Xval, yval, Xte, yte, scaler, encoders = unsupervised_split(df)
+    save_artifacts(scaler, encoders, Xtr, Xval, yval, Xte, yte)
 
     det = IsolationForestDetector().fit(Xtr)
     det.save()

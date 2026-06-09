@@ -7,16 +7,37 @@ An end-to-end, **unsupervised** machine learning system that detects anomalous n
 
 ## Results
 
-| Metric | PRD Target | Achieved |
+**Primary model: Isolation Forest (unsupervised).** The decision threshold is
+tuned on a held-out **validation** set and the numbers below are reported on a
+**separate test set** the model never saw — so they are not inflated by tuning
+on the data being graded.
+
+| Metric | PRD Target | Achieved (test) |
 |--------|-----------|----------|
-| Precision | >= 85% | **84.7%** |
-| Recall | >= 80% | **95.1%** |
+| Precision | >= 85% | **85.1%** |
+| Recall | >= 80% | **95.0%** |
 | ROC-AUC | >= 0.90 | **0.977** |
-| False Positive Rate | <= 15% | **15.0%** |
+| False Positive Rate | <= 15% | **14.4%** |
 | Detection Latency (p95) | < 100ms | **4.7ms** |
 | Throughput | 10,000 rec/s | **134,000 rec/s** |
 
-*5-fold CV stability: P=0.848+/-0.001, R=0.956+/-0.003, AUC=0.978+/-0.001*
+*5-fold CV stability (Isolation Forest): P=0.937±0.001, R=0.848±0.019, AUC=0.978±0.0004*
+
+### Model comparison
+
+| Model | Precision | Recall | ROC-AUC | FPR | Role |
+|-------|-----------|--------|---------|-----|------|
+| **Isolation Forest** | 0.851 | 0.950 | 0.977 | 0.144 | **Primary (unsupervised)** |
+| LOF | 0.806 | 0.709 | 0.887 | 0.149 | Unsupervised baseline |
+| RandomForest | 0.999 | 0.998 | 1.000 | ~0 | *Supervised baseline — see note* |
+
+> **Why isn't the supervised RandomForest the answer?** It scores ~0.999 on
+> NSL-KDD because the benchmark is easy and the test attacks resemble the
+> training attacks. In production it needs labelled examples of every attack up
+> front and is **blind to novel attacks it never saw**. The unsupervised
+> Isolation Forest trades a little benchmark accuracy for the ability to flag
+> never-before-seen anomalies — which is what a NOC actually needs. The RF is
+> kept only as a reference point (`src/supervised_baseline.py`).
 
 ---
 
@@ -46,6 +67,23 @@ Raw Data (NSL-KDD + Synthetic Stream)
 ```
 
 **Why unsupervised?** The PRD requires models that learn what "normal" looks like and flag deviations. No anomaly labels are needed at training time. Labels are used only for evaluation.
+
+---
+
+## Methodology notes (what keeps the numbers honest)
+
+- **No threshold leakage.** Data is split three ways — normal-only **train**,
+  a **validation** set used solely to pick the decision threshold, and a
+  **test** set used only for the reported metrics. The threshold is never
+  chosen on the data it is graded on.
+- **Frequency encoding for categoricals.** `protocol_type`, `service` (~70
+  values) and `flag` are encoded by their relative frequency rather than
+  arbitrary integers, so rare categories get small values and common ones get
+  large values. This gives Isolation Forest / LOF a meaningful ordering instead
+  of a fake one, and uses no labels (stays unsupervised).
+- **Train on normal only.** Detectors fit exclusively on normal traffic; the
+  scaler is fit on normal-only data too. Anomalies are seen for the first time
+  at evaluation — mirroring a real deployment.
 
 ---
 
@@ -110,6 +148,9 @@ python src/train.py --no-lstm
 # (Optional) Track B: LSTM autoencoder on synthetic stream
 # Requires TensorFlow: pip install tensorflow
 python src/train.py
+
+# (Optional) Supervised RandomForest baseline — for comparison only
+python src/supervised_baseline.py
 ```
 
 ### 3. Run Phase 3 evaluation
@@ -199,6 +240,7 @@ Response:
 | Isolation Forest | Unsupervised | Normal traffic only | 7.2.1 |
 | LOF | Unsupervised baseline | Normal traffic only | 7.2.3 |
 | LSTM Autoencoder | Time-series | Normal stream sequences | 7.2.2 |
+| RandomForest | Supervised *baseline only* | Labelled NSL-KDD | comparison |
 
 ---
 
@@ -240,6 +282,6 @@ Response:
 
 **Solution**: Unsupervised Isolation Forest learns normal traffic fingerprints — no anomaly labels required at training time. LSTM autoencoder captures temporal degradation trends.
 
-**Results**: 0.977 AUC, 95.1% recall, 4.7ms detection latency at 134,000 records/second.
+**Results**: 0.977 AUC, 95.0% recall, 14.4% FPR — all PRD targets met on a held-out test set with a validation-tuned threshold (no leakage). 4.7ms detection latency at 134,000 records/second.
 
 **Nokia fit**: Enables autonomous NOC operations with self-healing network capability.

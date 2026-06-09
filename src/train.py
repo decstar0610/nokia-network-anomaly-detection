@@ -25,6 +25,12 @@ import argparse
 import os
 import sys
 
+# Make console output robust on Windows (cp1252) where ✔/± would crash.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from data_loader import load_dataset
@@ -38,10 +44,10 @@ def train_tabular():
     print("TRACK A — NSL-KDD tabular (Isolation Forest + LOF)")
     print("=" * 60)
     df = load_dataset()
-    Xtr, Xte, yte, scaler, encoders = unsupervised_split(df)
-    save_artifacts(scaler, encoders, Xtr, Xte, yte)
-    print(f"Normal-only train: {len(Xtr)} | Test (mixed): {len(Xte)} "
-          f"| Test anomalies: {int((yte == 1).sum())}")
+    Xtr, Xval, yval, Xte, yte, scaler, encoders = unsupervised_split(df)
+    save_artifacts(scaler, encoders, Xtr, Xval, yval, Xte, yte)
+    print(f"Normal-only train: {len(Xtr)} | Val (mixed): {len(Xval)} "
+          f"| Test (mixed): {len(Xte)} | Test anomalies: {int((yte == 1).sum())}")
 
     print("\n[1/2] Isolation Forest ...")
     iforest = IsolationForestDetector().fit(Xtr)

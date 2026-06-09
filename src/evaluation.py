@@ -36,6 +36,12 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+# Make console output robust on Windows (cp1252) where ✔/± would crash.
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import joblib
@@ -75,6 +81,14 @@ def _load_tabular_test():
     # Normalise labels: anything non-zero -> 1
     y_test = (pd.Series(y_test).reset_index(drop=True) != 0).astype(int)
     return X_test, y_test
+
+
+def _load_tabular_val():
+    """Return X_val, y_val saved by train.py (used ONLY for threshold tuning)."""
+    X_val = joblib.load(os.path.join(MODELS_DIR, "X_val.pkl"))
+    y_val = joblib.load(os.path.join(MODELS_DIR, "y_val.pkl"))
+    y_val = (pd.Series(y_val).reset_index(drop=True) != 0).astype(int)
+    return X_val, y_val
 
 
 def _compute_metrics(y_true, y_pred, y_score, name: str) -> dict:
@@ -263,15 +277,14 @@ def _kfold_cv(X_all: pd.DataFrame, y_all: pd.Series, k: int = 5) -> dict:
         X_te = X_all.iloc[test_idx]
         y_te = y_all.iloc[test_idx]
 
-        # Train on normal-only within this fold.
+        # Train on normal-only within this fold. The detector sets its default
+        # threshold from the TRAIN-normal score distribution (95th percentile),
+        # so we never peek at the fold's test labels. AUC is threshold-free and
+        # is the primary stability metric here; P/R/F1 use that fixed threshold.
         X_tr_normal = X_tr[y_tr == 0]
         det = IsolationForestDetector().fit(X_tr_normal)
 
-        # Tune threshold for FPR <= 15%.
         score_te = det.anomaly_score(X_te.values)
-        thr, _, _ = _tune_threshold_for_fpr(y_te, score_te)
-        det.set_threshold(thr)
-
         y_pred = det.predict(X_te.values)
         try:
             roc = roc_auc_score(y_te, score_te)
@@ -354,7 +367,7 @@ def _evaluate_lstm(roc_curves: list, pr_curves: list, all_results: list,
     lstm_model_path = os.path.join(MODELS_DIR, "lstm_autoencoder.keras")
     stream_scaler_path = os.path.join(MODELS_DIR, "stream_scaler.pkl")
     if not os.path.exists(lstm_model_path):
-        print("   lstm_autoencoder.h5 not found -- run train.py first. Skipping.")
+        print("   lstm_autoencoder.keras not found -- run train.py first. Skipping.")
         return
 
     print("   Loading LSTM and synthetic stream...")
@@ -371,15 +384,29 @@ def _evaluate_lstm(roc_curves: list, pr_curves: list, all_results: list,
     X_stream = scaler.transform(feats[ENGINEERED_NUMERIC].values)
     y_stream  = (feats["label"].values != 0).astype(int)
 
-    # Use last 20% as test (temporal split -- no leakage).
-    split = int(0.8 * len(X_stream))
-    X_te = X_stream[split:]; y_te = y_stream[split:]
+    # Temporal 3-way split: first 80% is the training region (model already fit
+    # on its normal rows), 80-90% is VALIDATION (threshold + score normalisation),
+    # last 10% is TEST. Tuning and normalising on val avoids peeking at test.
+    n = len(X_stream)
+    val_start, test_start = int(0.8 * n), int(0.9 * n)
+    X_val, y_val = X_stream[val_start:test_start], y_stream[val_start:test_start]
+    X_te,  y_te  = X_stream[test_start:],          y_stream[test_start:]
 
-    y_score = det.anomaly_score(X_te)
-    # Normalise to [0,1]
-    span = max(y_score.max() - y_score.min(), 1e-9)
-    y_score_norm = np.clip((y_score - y_score.min()) / span, 0.0, 1.0)
-    thr, _, _ = _tune_threshold_for_fpr(y_te, y_score_norm)
+    val_raw = det.anomaly_score(X_val)
+    te_raw  = det.anomaly_score(X_te)
+
+    # Normalise both splits using VALIDATION min/span only (no test peeking).
+    smin = float(val_raw.min())
+    span = max(float(val_raw.max()) - smin, 1e-9)
+    y_val_score  = np.clip((val_raw - smin) / span, 0.0, 1.0)
+    y_score_norm = np.clip((te_raw - smin) / span, 0.0, 1.0)
+
+    # Tune threshold on validation; fall back to a percentile rule if the val
+    # slice happens to be single-class.
+    if 0 < int(y_val.sum()) < len(y_val):
+        thr, _, _ = _tune_threshold_for_fpr(y_val, y_val_score)
+    else:
+        thr = float(np.percentile(y_val_score, 95))
     y_pred = (y_score_norm >= thr).astype(int)
 
     m = _compute_metrics(y_te, y_pred, y_score_norm, "LSTM Autoencoder")
@@ -418,9 +445,12 @@ def run_evaluation(run_lstm: bool = True, run_shap: bool = True,
     print("PHASE 3 -- EVALUATION, VALIDATION & COMPARISON")
     print("=" * 65)
 
-    # -- 1. Load test data ----------------------------------------------------
-    print("\n[1/7] Loading test data...")
+    # -- 1. Load validation + test data ---------------------------------------
+    print("\n[1/7] Loading validation + test data...")
+    X_val, y_val   = _load_tabular_val()
     X_test, y_test = _load_tabular_test()
+    print(f"   Val  rows: {len(X_val)} | Anomalies: {int(y_val.sum())} "
+          f"({100*y_val.mean():.1f}%)")
     print(f"   Test rows: {len(X_test)} | Anomalies: {int(y_test.sum())} "
           f"({100*y_test.mean():.1f}%)")
 
@@ -430,24 +460,34 @@ def run_evaluation(run_lstm: bool = True, run_shap: bool = True,
     lof     = LOFDetector.load()
     print("   Isolation Forest + LOF loaded.")
 
-    # -- 3. Score + threshold tuning -----------------------------------------
-    print("\n[3/7] Scoring & threshold tuning (FPR <= 15%)...")
-    X_np = X_test.values
+    # -- 3. Threshold tuning on VALIDATION, final scoring on TEST -------------
+    # The decision threshold is chosen using the validation set ONLY, then
+    # frozen and applied to the untouched test set. This avoids tuning on the
+    # same data we report (the previous leakage that inflated the numbers).
+    print("\n[3/7] Tuning threshold on validation, scoring on test...")
+    X_val_np = X_val.values
+    X_np     = X_test.values
 
-    if_score  = iforest.anomaly_score(X_np)
-    lof_score = lof.anomaly_score(X_np)
+    if_val_score  = iforest.anomaly_score(X_val_np)
+    lof_val_score = lof.anomaly_score(X_val_np)
 
-    if_thr,  if_fpr_t,  if_tpr_t  = _tune_threshold_for_fpr(y_test, if_score)
-    lof_thr, lof_fpr_t, lof_tpr_t = _tune_threshold_for_fpr(y_test, lof_score)
+    if_thr,  if_fpr_t,  _ = _tune_threshold_for_fpr(y_val, if_val_score)
+    lof_thr, lof_fpr_t, _ = _tune_threshold_for_fpr(y_val, lof_val_score)
 
     iforest.set_threshold(if_thr)
     lof.set_threshold(lof_thr)
+    # Persist tuned thresholds so the API / CLI use the same operating point.
+    iforest.save()
+    lof.save()
 
-    if_pred  = iforest.predict(X_np)
-    lof_pred = lof.predict(X_np)
+    # Final scores + predictions on the held-out test set.
+    if_score  = iforest.anomaly_score(X_np)
+    lof_score = lof.anomaly_score(X_np)
+    if_pred   = iforest.predict(X_np)
+    lof_pred  = lof.predict(X_np)
 
-    print(f"   IF  threshold={if_thr:.4f}  (FPR after tuning={if_fpr_t:.3f})")
-    print(f"   LOF threshold={lof_thr:.4f}  (FPR after tuning={lof_fpr_t:.3f})")
+    print(f"   IF  threshold={if_thr:.4f}  (tuned on val, val FPR={if_fpr_t:.3f})")
+    print(f"   LOF threshold={lof_thr:.4f}  (tuned on val, val FPR={lof_fpr_t:.3f})")
 
     # -- 4. Compute metrics ---------------------------------------------------
     print("\n[4/7] Computing metrics...")

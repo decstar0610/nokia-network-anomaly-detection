@@ -8,15 +8,15 @@
   "model_results": [
     {
       "model": "Isolation Forest",
-      "precision": 0.85,
-      "recall": 0.9475,
-      "f1": 0.8961,
-      "roc_auc": 0.977,
-      "fpr": 0.1455,
-      "tp": 11110,
-      "tn": 11509,
-      "fp": 1960,
-      "fn": 616,
+      "precision": 0.8514,
+      "recall": 0.9496,
+      "f1": 0.8978,
+      "roc_auc": 0.9769,
+      "fpr": 0.1443,
+      "tp": 11135,
+      "tn": 11525,
+      "fp": 1944,
+      "fn": 591,
       "meets_precision": true,
       "meets_recall": true,
       "meets_auc": true,
@@ -24,31 +24,31 @@
     },
     {
       "model": "LOF",
-      "precision": 0.85,
-      "recall": 0.9431,
-      "f1": 0.8942,
-      "roc_auc": 0.9161,
-      "fpr": 0.1449,
-      "tp": 11059,
-      "tn": 11518,
-      "fp": 1951,
-      "fn": 667,
-      "meets_precision": true,
-      "meets_recall": true,
-      "meets_auc": true,
+      "precision": 0.8057,
+      "recall": 0.7089,
+      "f1": 0.7542,
+      "roc_auc": 0.8866,
+      "fpr": 0.1489,
+      "tp": 8313,
+      "tn": 11464,
+      "fp": 2005,
+      "fn": 3413,
+      "meets_precision": false,
+      "meets_recall": false,
+      "meets_auc": false,
       "meets_fpr": "True"
     },
     {
       "model": "LSTM Autoencoder",
-      "precision": 0.0933,
-      "recall": 0.3352,
-      "f1": 0.146,
-      "roc_auc": 0.7152,
-      "fpr": 0.1499,
-      "tp": 354,
-      "tn": 19505,
-      "fp": 3439,
-      "fn": 702,
+      "precision": 0.0884,
+      "recall": 0.3034,
+      "f1": 0.1369,
+      "roc_auc": 0.7514,
+      "fpr": 0.1178,
+      "tp": 132,
+      "tn": 10203,
+      "fp": 1362,
+      "fn": 303,
       "meets_precision": false,
       "meets_recall": false,
       "meets_auc": false,
@@ -56,68 +56,68 @@
     }
   ],
   "cv_isolation_forest": {
-    "precision_mean": 0.85,
-    "precision_std": 0.0,
-    "recall_mean": 0.9526,
-    "recall_std": 0.0031,
-    "f1_mean": 0.8984,
-    "f1_std": 0.0013,
-    "roc_auc_mean": 0.9775,
-    "roc_auc_std": 0.0008
+    "precision_mean": 0.9369,
+    "precision_std": 0.0012,
+    "recall_mean": 0.8478,
+    "recall_std": 0.0189,
+    "f1_mean": 0.89,
+    "f1_std": 0.0102,
+    "roc_auc_mean": 0.9783,
+    "roc_auc_std": 0.0004
   },
   "error_analysis": [
     {
       "model": "Isolation Forest",
       "false_positives": {
-        "count": 1960,
-        "avg_score": 0.4591
+        "count": 1944,
+        "avg_score": 0.471
       },
       "false_negatives": {
-        "count": 616,
-        "avg_score": 0.2509
+        "count": 591,
+        "avg_score": 0.2596
       },
       "fp_vs_tp_mean_diff": {
-        "flag": 0.887,
-        "hot": 0.7625,
-        "protocol_type": 0.6756,
-        "duration": 0.4951,
-        "src_bytes": -0.4184
+        "flag": 0.9605,
+        "hot": 0.796,
+        "src_bytes": -0.5433,
+        "duration": 0.4609,
+        "protocol_type": -0.4355
       }
     },
     {
       "model": "LOF",
       "false_positives": {
-        "count": 1951,
-        "avg_score": 0.0121
+        "count": 2005,
+        "avg_score": 0.0037
       },
       "false_negatives": {
-        "count": 667,
-        "avg_score": 0.0028
+        "count": 3413,
+        "avg_score": 0.001
       },
       "fp_vs_tp_mean_diff": {
-        "flag": 2.1108,
-        "service": -0.583,
-        "protocol_type": 0.4501,
-        "src_bytes": -0.3997,
-        "dst_bytes": 0.2922
+        "flag": 2.2013,
+        "service": 0.9227,
+        "src_bytes": -0.8186,
+        "duration": -0.3113,
+        "dst_bytes": 0.2662
       }
     },
     {
       "model": "LSTM Autoencoder",
       "false_positives": {
-        "count": 3439,
-        "avg_score": 0.0087
+        "count": 1362,
+        "avg_score": 0.064
       },
       "false_negatives": {
-        "count": 702,
-        "avg_score": 0.0002
+        "count": 303,
+        "avg_score": 0.0027
       },
       "fp_vs_tp_mean_diff": {
-        "bytes_per_packet": -14.2067,
-        "packet_rate": -11.7915,
-        "duration": -10.5794,
-        "bytes_transferred": -9.2454,
-        "packets_count": -1.7178
+        "packet_rate": -21.0858,
+        "bytes_per_packet": -14.7575,
+        "duration": -11.0228,
+        "bytes_transferred": -9.3933,
+        "packets_count": -1.7885
       }
     }
   ],
