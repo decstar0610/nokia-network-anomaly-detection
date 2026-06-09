@@ -101,6 +101,8 @@ network-anomaly-detection/
 │   ├── streaming_simulator.py  # Phase 4: real-time replay + latency
 │   ├── alerting.py             # Phase 5: alert engine (FR4.1)
 │   ├── api.py                  # Phase 5: FastAPI REST API
+│   ├── run_prediction.py       # Unsupervised CLI: batch-score a CSV
+│   ├── supervised_baseline.py  # Supervised RF — comparison baseline only
 │   └── models/
 │       ├── isolation_forest.py
 │       ├── lof.py
