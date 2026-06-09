@@ -29,7 +29,14 @@ on the data being graded.
 |-------|-----------|--------|---------|-----|------|
 | **Isolation Forest** | 0.851 | 0.950 | 0.977 | 0.144 | **Primary (unsupervised)** |
 | LOF | 0.806 | 0.709 | 0.887 | 0.149 | Unsupervised baseline |
+| LSTM Autoencoder | 0.088 | 0.303 | 0.751 | 0.118 | Time-series (Track B, experimental) |
 | RandomForest | 0.999 | 0.998 | 1.000 | ~0 | *Supervised baseline — see note* |
+
+> **On the LSTM (Track B):** evaluated honestly on a temporal val/test split,
+> it manages AUC=0.751 but is weak at its operating point — the synthetic
+> stream has temporal distribution shift that the autoencoder doesn't handle
+> well. It's kept as an experimental time-series track; the production detector
+> is the Isolation Forest.
 
 > **Why isn't the supervised RandomForest the answer?** It scores ~0.999 on
 > NSL-KDD because the benchmark is easy and the test attacks resemble the
@@ -117,9 +124,8 @@ network-anomaly-detection/
 │   ├── test_models.py
 │   ├── test_alerting.py
 │   └── test_api.py
-├── data/
-│   ├── raw/                    # NSL-KDD CSV + synthetic stream
-│   └── processed/              # Scaled train/test splits + stream features
+├── dataset/                    # NSL-KDD source CSV (NSL_KDD_READY.csv)
+├── data/processed/             # Train/val/test splits + stream features
 ├── models/                     # Saved .pkl models + scalers + metadata
 ├── results/                    # metrics.json, ROC/PR/SHAP plots
 ├── Dockerfile
